@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Главная - NanoWave{% endblock %}
+{% block content %}
+<div class="p-4 mb-4 bg-light rounded-3">
+    <div class="container-fluid py-2">
+        <h1 class="display-6">Интернет-магазин электроники NanoWave</h1>
+        <p class="lead">Смартфоны, ноутбуки, аксессуары и многое другое.</p>
+        <a href="{{ url_for('main.catalog') }}" class="btn btn-primary">Перейти в каталог</a>
+    </div>
+</div>
+
+<form class="row g-2 mb-4" method="get" action="{{ url_for('main.catalog') }}">
+    <div class="col-md-10">
+        <input type="text" class="form-control" name="q" placeholder="Поиск товара...">
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-dark w-100" type="submit">Найти</button>
+    </div>
+</form>
+
+<h3 class="mb-3">Категории</h3>
+<div class="d-flex flex-wrap gap-2 mb-4">
+    {% for item in categories %}
+        <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('main.catalog', category=item['category']) }}">
+            {{ item['category'] }}
+        </a>
+    {% endfor %}
+</div>
+
+<h3 class="mb-3">Популярные товары</h3>
+<div class="row g-3">
+    {% for product in popular_products %}
+        <div class="col-md-4">
+            <div class="card h-100">
+                <img src="{{ url_for('static', filename='uploads/' + (product['image'] or 'placeholder.svg')) }}"
+                     class="card-img-top product-image" alt="{{ product['title'] }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ product['title'] }}</h5>
+                    <p class="card-text text-muted">{{ product['category'] }}</p>
+                    <p class="fw-bold">{{ "%.2f"|format(product['price']) }} ₽</p>
+                    <a class="btn btn-sm btn-outline-primary" href="{{ url_for('main.product', product_id=product['id']) }}">
+                        Подробнее
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

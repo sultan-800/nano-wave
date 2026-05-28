@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Профиль - NanoWave{% endblock %}
+{% block content %}
+<h2>Профиль пользователя</h2>
+<div class="card mb-4">
+    <div class="card-body">
+        <p><strong>Имя:</strong> {{ current_user.username }}</p>
+        <p><strong>Email:</strong> {{ current_user.email }}</p>
+        <p><strong>Роль:</strong> {{ current_user.role }}</p>
+    </div>
+</div>
+
+<h4>Мои заказы</h4>
+{% if orders %}
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>ID заказа</th>
+                <th>Дата</th>
+                <th>Сумма</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for order in orders %}
+                <tr>
+                    <td>#{{ order['id'] }}</td>
+                    <td>{{ order['created_at'] }}</td>
+                    <td>{{ "%.2f"|format(order['total_price']) }} ₽</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <p>У вас пока нет заказов.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Заказы - Админка{% endblock %}
+{% block content %}
+<h2 class="mb-3">Оформленные заказы</h2>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>ID заказа</th>
+            <th>Пользователь</th>
+            <th>Email</th>
+            <th>Дата</th>
+            <th>Сумма</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for order in orders %}
+            <tr>
+                <td>#{{ order['id'] }}</td>
+                <td>{{ order['username'] }}</td>
+                <td>{{ order['email'] }}</td>
+                <td>{{ order['created_at'] }}</td>
+                <td>{{ "%.2f"|format(order['total_price']) }} ₽</td>
+            </tr>
+        {% else %}
+            <tr><td colspan="5">Заказы отсутствуют.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
