@@ -33,6 +33,19 @@ def close_db(_error=None):
         db.close()
 
 
+def _migrate_orders_table(conn):
+    columns = {row["name"] for row in conn.execute("PRAGMA table_info(orders)").fetchall()}
+    migrations = {
+        "phone": "ALTER TABLE orders ADD COLUMN phone TEXT",
+        "delivery_address": "ALTER TABLE orders ADD COLUMN delivery_address TEXT",
+        "payment_method": "ALTER TABLE orders ADD COLUMN payment_method TEXT",
+    }
+    for column, sql in migrations.items():
+        if column not in columns:
+            conn.execute(sql)
+    conn.commit()
+
+
 def init_db(app):
     schema = """
     CREATE TABLE IF NOT EXISTS users (
@@ -68,6 +81,9 @@ def init_db(app):
         user_id INTEGER NOT NULL,
         total_price REAL NOT NULL,
         created_at TEXT NOT NULL,
+        phone TEXT,
+        delivery_address TEXT,
+        payment_method TEXT,
         FOREIGN KEY(user_id) REFERENCES users(id)
     );
 
@@ -80,12 +96,23 @@ def init_db(app):
         FOREIGN KEY(order_id) REFERENCES orders(id),
         FOREIGN KEY(product_id) REFERENCES products(id)
     );
+
+    CREATE TABLE IF NOT EXISTS support_messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        message TEXT NOT NULL,
+        is_from_admin INTEGER NOT NULL DEFAULT 0,
+        is_read INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY(user_id) REFERENCES users(id)
+    );
     """
 
     with sqlite3.connect(app.config["DATABASE_PATH"]) as conn:
         conn.row_factory = sqlite3.Row
         conn.executescript(schema)
         conn.commit()
+        _migrate_orders_table(conn)
 
         admin = conn.execute("SELECT id FROM users WHERE role = 'admin' LIMIT 1").fetchone()
         if not admin:
@@ -148,4 +175,12 @@ def create_app():
 
     app.register_blueprint(main_bp)
     app.register_blueprint(admin_bp, url_prefix="/admin")
+
+    @app.context_processor
+    def inject_globals():
+        return {
+            "support_phone": app.config["SUPPORT_PHONE"],
+            "support_phone_tel": app.config["SUPPORT_PHONE_TEL"],
+        }
+
     return app

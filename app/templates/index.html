@@ -1,27 +1,91 @@
 {% extends "base.html" %}
 {% block title %}Главная - NanoWave{% endblock %}
 {% block content %}
-<div class="p-4 mb-4 bg-light rounded-3">
-    <div class="container-fluid py-2">
-        <h1 class="display-6">Интернет-магазин электроники NanoWave</h1>
-        <p class="lead">Смартфоны, ноутбуки, аксессуары и многое другое.</p>
-        <a href="{{ url_for('main.catalog') }}" class="btn btn-primary">Перейти в каталог</a>
+<section class="hero-section rounded-4 mb-5">
+    <div class="hero-content text-white">
+        <p class="hero-badge mb-2">Интернет-магазин электроники</p>
+        <h1 class="display-5 fw-bold mb-3">NanoWave — технологии, которые работают на вас</h1>
+        <p class="lead hero-lead mb-4">
+            Мы собрали лучшие смартфоны, ноутбуки, аудио и гаджеты в одном месте.
+            Оригинальная продукция, быстрая доставка по России и гарантия качества на каждый заказ.
+        </p>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{{ url_for('main.catalog') }}" class="btn btn-light btn-lg">Перейти в каталог</a>
+            <a href="tel:{{ support_phone_tel }}" class="btn btn-outline-light btn-lg">
+                <i class="bi bi-telephone-fill me-1"></i>{{ support_phone }}
+            </a>
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('main.support') }}" class="btn btn-outline-light btn-lg">
+                    <i class="bi bi-chat-dots me-1"></i>Написать
+                </a>
+            {% endif %}
+        </div>
     </div>
-</div>
+</section>
+
+<section class="mb-5">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="feature-card h-100">
+                <i class="bi bi-truck feature-icon"></i>
+                <h5>Быстрая доставка</h5>
+                <p class="text-muted mb-0">Отправляем заказы в день оформления. Доставка по городу и в регионы.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card h-100">
+                <i class="bi bi-shield-check feature-icon"></i>
+                <h5>Гарантия и сервис</h5>
+                <p class="text-muted mb-0">Официальная гарантия производителя и поддержка после покупки.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card h-100">
+                <i class="bi bi-credit-card feature-icon"></i>
+                <h5>Удобная оплата</h5>
+                <p class="text-muted mb-0">Картой, СБП или наличными при получении — выбирайте удобный способ.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="about-store mb-5 p-4 rounded-4">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-7">
+            <h2 class="mb-3">О магазине NanoWave</h2>
+            <p>
+                NanoWave — это современный магазин электроники для тех, кто ценит качество и сервис.
+                Мы работаем с проверенными поставщиками, регулярно обновляем ассортимент и помогаем
+                подобрать технику под ваши задачи: учёба, работа, игры или повседневное использование.
+            </p>
+            <p class="mb-0">
+                На сайте вы можете просматривать каталог, добавлять товары в корзину, оформлять заказы
+                и отслеживать историю покупок в личном профиле.
+            </p>
+        </div>
+        <div class="col-lg-5">
+            <div class="about-stats">
+                <div><strong>500+</strong><span>довольных клиентов</span></div>
+                <div><strong>4.9</strong><span>средняя оценка сервиса</span></div>
+                <div><strong>24/7</strong><span>поддержка заказов</span></div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <form class="row g-2 mb-4" method="get" action="{{ url_for('main.catalog') }}">
     <div class="col-md-10">
-        <input type="text" class="form-control" name="q" placeholder="Поиск товара...">
+        <input type="text" class="form-control form-control-lg" name="q" placeholder="Поиск товара...">
     </div>
     <div class="col-md-2">
-        <button class="btn btn-dark w-100" type="submit">Найти</button>
+        <button class="btn btn-dark btn-lg w-100" type="submit">Найти</button>
     </div>
 </form>
 
 <h3 class="mb-3">Категории</h3>
 <div class="d-flex flex-wrap gap-2 mb-4">
     {% for item in categories %}
-        <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('main.catalog', category=item['category']) }}">
+        <a class="btn btn-outline-secondary" href="{{ url_for('main.catalog', category=item['category']) }}">
             {{ item['category'] }}
         </a>
     {% endfor %}
@@ -30,20 +94,7 @@
 <h3 class="mb-3">Популярные товары</h3>
 <div class="row g-3">
     {% for product in popular_products %}
-        <div class="col-md-4">
-            <div class="card h-100">
-                <img src="{{ url_for('static', filename='uploads/' + (product['image'] or 'placeholder.svg')) }}"
-                     class="card-img-top product-image" alt="{{ product['title'] }}">
-                <div class="card-body">
-                    <h5 class="card-title">{{ product['title'] }}</h5>
-                    <p class="card-text text-muted">{{ product['category'] }}</p>
-                    <p class="fw-bold">{{ "%.2f"|format(product['price']) }} ₽</p>
-                    <a class="btn btn-sm btn-outline-primary" href="{{ url_for('main.product', product_id=product['id']) }}">
-                        Подробнее
-                    </a>
-                </div>
-            </div>
-        </div>
+        {% include "partials/product_card.html" %}
     {% endfor %}
 </div>
 {% endblock %}

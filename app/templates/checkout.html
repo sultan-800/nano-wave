@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Оформление заказа - NanoWave{% endblock %}
+{% block content %}
+{% include "partials/back_button.html" %}
+
+<h2 class="mb-4">Оформление заказа</h2>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-header">Данные доставки и оплаты</div>
+            <div class="card-body">
+                <form method="post">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.phone.label(class="form-label") }}
+                        {{ form.phone(class="form-control", placeholder="+7 (999) 123-45-67") }}
+                        {% for error in form.phone.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.delivery_address.label(class="form-label") }}
+                        {{ form.delivery_address(class="form-control", rows="3", placeholder="Город, улица, дом, квартира") }}
+                        {% for error in form.delivery_address.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.payment_method.label(class="form-label") }}
+                        {{ form.payment_method(class="form-select") }}
+                    </div>
+                    <p class="text-muted small mb-3">
+                        Оплата на сайте не производится — способ оплаты фиксируется для обработки заказа менеджером.
+                    </p>
+                    {{ form.submit(class="btn btn-success btn-lg") }}
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-header">Ваш заказ</div>
+            <ul class="list-group list-group-flush">
+                {% for item in cart_items %}
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>{{ item['title'] }} × {{ item['quantity'] }}</span>
+                        <span>{{ "%.2f"|format(item['price'] * item['quantity']) }} ₽</span>
+                    </li>
+                {% endfor %}
+            </ul>
+            <div class="card-footer d-flex justify-content-between fw-bold">
+                <span>Итого</span>
+                <span>{{ "%.2f"|format(total) }} ₽</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

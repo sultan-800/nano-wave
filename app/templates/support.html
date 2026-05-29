@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Поддержка - NanoWave{% endblock %}
+{% block content %}
+{% include "partials/back_button.html" %}
+
+<h2 class="mb-3">Чат поддержки</h2>
+
+<div class="alert alert-info d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <span><i class="bi bi-telephone-fill me-1"></i> Телефон поддержки: <strong>{{ support_phone }}</strong></span>
+    <a href="tel:{{ support_phone_tel }}" class="btn btn-sm btn-primary">Позвонить</a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card shadow-sm support-chat-card">
+            <div class="card-header">Переписка</div>
+            <div class="card-body support-messages">
+                {% if messages %}
+                    {% for msg in messages %}
+                        <div class="support-message {% if msg['is_from_admin'] %}support-message--admin{% else %}support-message--user{% endif %}">
+                            <div class="support-message-meta">
+                                {% if msg['is_from_admin'] %}Поддержка{% else %}Вы{% endif %}
+                                · {{ msg['created_at'] }}
+                            </div>
+                            <div class="support-message-text">{{ msg['message'] }}</div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted mb-0">Сообщений пока нет. Напишите нам — мы поможем!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-header">Новое сообщение</div>
+            <div class="card-body">
+                <form method="post">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.message(class="form-control", rows="5", placeholder="Опишите ваш вопрос...") }}
+                    </div>
+                    {{ form.submit(class="btn btn-primary w-100") }}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

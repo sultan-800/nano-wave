@@ -1,12 +1,13 @@
 {% extends "base.html" %}
 {% block title %}Товары - Админка{% endblock %}
 {% block content %}
+{% include "partials/back_button.html" %}
 <h2 class="mb-3">Управление товарами</h2>
 
 <div class="card mb-4">
     <div class="card-header">{{ "Редактировать товар" if edit_product else "Добавить товар" }}</div>
     <div class="card-body">
-        <form method="post">
+        <form method="post" enctype="multipart/form-data">
             {{ form.hidden_tag() }}
             <div class="row g-3">
                 <div class="col-md-6">
@@ -25,9 +26,15 @@
                     {{ form.price.label(class="form-label") }}
                     {{ form.price(class="form-control") }}
                 </div>
-                <div class="col-md-8">
+                <div class="col-md-4">
                     {{ form.image.label(class="form-label") }}
-                    {{ form.image(class="form-control") }}
+                    {{ form.image(class="form-control", placeholder="") }}
+                    <div class="form-text">Имя для фотографии</div>
+                </div>
+                <div class="col-md-4">
+                    {{ form.image_file.label(class="form-label") }}
+                    {{ form.image_file(class="form-control") }}
+                    <div class="form-text">Загрузите фото — оно сохранится под указанным именем</div>
                 </div>
                 <div class="col-12">
                     {{ form.description.label(class="form-label") }}
@@ -43,6 +50,26 @@
         </form>
     </div>
 </div>
+
+<form class="row g-2 mb-4" method="get">
+    <div class="col-md-6">
+        <input type="text" class="form-control" name="q" placeholder="Поиск по ID, названию, категории, цене..."
+               value="{{ search_q }}">
+    </div>
+    <div class="col-md-4">
+        <select class="form-select" name="filter_category">
+            <option value="">Все категории</option>
+            {% for item in categories %}
+                <option value="{{ item['category'] }}" {% if filter_category == item['category'] %}selected{% endif %}>
+                    {{ item['category'] }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-primary w-100" type="submit">Найти</button>
+    </div>
+</form>
 
 <div class="table-responsive">
     <table class="table table-hover">
@@ -63,14 +90,22 @@
                 <td>{{ product['title'] }}</td>
                 <td>{{ product['category'] }}</td>
                 <td>{{ "%.2f"|format(product['price']) }} ₽</td>
-                <td>{{ product['stock'] }}</td>
+                <td>
+                    {% if product['stock'] == 0 %}
+                        <span class="badge bg-secondary">0</span>
+                    {% else %}
+                        {{ product['stock'] }}
+                    {% endif %}
+                </td>
                 <td class="d-flex gap-2">
-                    <a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin.admin_products', edit=product['id']) }}">Изменить</a>
+                    <a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin.admin_products', edit=product['id'], q=search_q, filter_category=filter_category) }}">Изменить</a>
                     <form method="post" action="{{ url_for('admin.delete_product', product_id=product['id']) }}">
                         <button class="btn btn-sm btn-outline-danger" type="submit">Удалить</button>
                     </form>
                 </td>
             </tr>
+        {% else %}
+            <tr><td colspan="6" class="text-muted">Товары не найдены</td></tr>
         {% endfor %}
         </tbody>
     </table>

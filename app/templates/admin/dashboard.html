@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Админ-панель - NanoWave{% endblock %}
 {% block content %}
+{% include "partials/back_button.html" %}
 <h2 class="mb-4">Панель администратора</h2>
 
 <div class="row g-3 mb-4">
@@ -38,9 +39,46 @@
     </div>
 </div>
 
-<div class="d-flex flex-wrap gap-2">
+<div class="d-flex flex-wrap gap-2 mb-4">
     <a class="btn btn-outline-primary" href="{{ url_for('admin.admin_products') }}">Управление товарами</a>
     <a class="btn btn-outline-secondary" href="{{ url_for('admin.admin_users') }}">Пользователи</a>
     <a class="btn btn-outline-dark" href="{{ url_for('admin.admin_orders') }}">Заказы</a>
+    <a class="btn btn-outline-danger position-relative" href="{{ url_for('admin.admin_support') }}">
+        <i class="bi bi-chat-dots me-1"></i>Поддержка
+        {% if unread_support > 0 %}
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                {{ unread_support }}
+            </span>
+        {% endif %}
+    </a>
 </div>
+
+<section class="card shadow-sm border-danger border-opacity-25">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-headset me-1"></i> Чат поддержки</span>
+        {% if unread_support > 0 %}
+            <span class="badge bg-danger">{{ unread_support }} новых</span>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <p class="text-muted">Новые обращения от пользователей. Телефон поддержки: <strong>{{ support_phone }}</strong></p>
+        {% if recent_support %}
+            <div class="list-group mb-3">
+                {% for msg in recent_support %}
+                    <a href="{{ url_for('admin.admin_support', user_id=msg['user_id']) }}"
+                       class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between">
+                            <strong>{{ msg['username'] }}</strong>
+                            <small class="text-muted">{{ msg['created_at'] }}</small>
+                        </div>
+                        <div class="small text-truncate">{{ msg['message'] }}</div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted mb-3">Новых сообщений нет.</p>
+        {% endif %}
+        <a href="{{ url_for('admin.admin_support') }}" class="btn btn-danger">Открыть все диалоги</a>
+    </div>
+</section>
 {% endblock %}

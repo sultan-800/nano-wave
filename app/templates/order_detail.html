@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Заказ #{{ order['id'] }} - NanoWave{% endblock %}
+{% block content %}
+{% include "partials/back_button.html" %}
+
+<h2 class="mb-4">Заказ #{{ order['id'] }}</h2>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-header">Информация о заказе</div>
+            <div class="card-body">
+                <p><strong>Дата:</strong> {{ order['created_at'] }}</p>
+                <p><strong>Сумма:</strong> {{ "%.2f"|format(order['total_price']) }} ₽</p>
+                <p><strong>Телефон:</strong> {{ order['phone'] or '—' }}</p>
+                <p><strong>Адрес доставки:</strong> {{ order['delivery_address'] or '—' }}</p>
+                <p><strong>Способ оплаты:</strong> {{ payment_labels.get(order['payment_method'], '—') }}</p>
+                {% if is_admin_view %}
+                    <hr>
+                    <p><strong>Покупатель:</strong> {{ order['username'] }}</p>
+                    <p><strong>Email:</strong> {{ order['email'] }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-header">Товары в заказе</div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead>
+                    <tr>
+                        <th>Товар</th>
+                        <th>Кол-во</th>
+                        <th>Цена</th>
+                        <th>Сумма</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in items %}
+                        <tr class="order-item-row" data-href="{{ url_for('main.product', product_id=item['product_id']) }}">
+                            <td>
+                                <a href="{{ url_for('main.product', product_id=item['product_id']) }}" class="text-decoration-none">
+                                    {{ item['title'] }}
+                                </a>
+                            </td>
+                            <td>{{ item['quantity'] }}</td>
+                            <td>{{ "%.2f"|format(item['price']) }} ₽</td>
+                            <td>{{ "%.2f"|format(item['price'] * item['quantity']) }} ₽</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

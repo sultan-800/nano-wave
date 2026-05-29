@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Поддержка - Админка{% endblock %}
+{% block content %}
+{% include "partials/back_button.html" %}
+<h2 class="mb-3">Чат поддержки</h2>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-header">Диалоги с пользователями</div>
+            <div class="list-group list-group-flush support-user-list">
+                {% for conv in conversations %}
+                    <a href="{{ url_for('admin.admin_support', user_id=conv['id']) }}"
+                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-start{% if selected_user and selected_user['id'] == conv['id'] %} active{% endif %}">
+                        <div>
+                            <strong>{{ conv['username'] }}</strong>
+                            <div class="small text-muted">{{ conv['email'] }}</div>
+                        </div>
+                        {% if conv['unread_count'] > 0 %}
+                            <span class="badge bg-danger rounded-pill">{{ conv['unread_count'] }}</span>
+                        {% endif %}
+                    </a>
+                {% else %}
+                    <div class="list-group-item text-muted">Сообщений пока нет</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        {% if selected_user %}
+            <div class="card shadow-sm support-chat-card mb-3">
+                <div class="card-header">
+                    Диалог с {{ selected_user['username'] }} ({{ selected_user['email'] }})
+                </div>
+                <div class="card-body support-messages">
+                    {% for msg in messages %}
+                        <div class="support-message {% if msg['is_from_admin'] %}support-message--admin{% else %}support-message--user{% endif %}">
+                            <div class="support-message-meta">
+                                {% if msg['is_from_admin'] %}Вы (поддержка){% else %}{{ selected_user['username'] }}{% endif %}
+                                · {{ msg['created_at'] }}
+                            </div>
+                            <div class="support-message-text">{{ msg['message'] }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form method="post" action="{{ url_for('admin.admin_support', user_id=selected_user['id']) }}">
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            {{ form.message(class="form-control", rows="3", placeholder="Ответ пользователю...") }}
+                        </div>
+                        {{ form.submit(class="btn btn-primary", value="Отправить ответ") }}
+                    </form>
+                </div>
+            </div>
+        {% else %}
+            <div class="card shadow-sm">
+                <div class="card-body text-muted">
+                    Выберите пользователя слева, чтобы просмотреть переписку и ответить.
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

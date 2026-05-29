@@ -1,27 +1,30 @@
 {% extends "base.html" %}
 {% block title %}{{ product['title'] }} - NanoWave{% endblock %}
 {% block content %}
+{% include "partials/back_button.html" %}
 <div class="row g-4">
-    <div class="col-md-5">
+    <div class="col-md-5 position-relative">
+        {% if product['stock'] == 0 %}
+            <span class="badge-out-of-stock badge-out-of-stock--product-page">Нет в наличии</span>
+        {% endif %}
         <img src="{{ url_for('static', filename='uploads/' + (product['image'] or 'placeholder.svg')) }}"
-             class="img-fluid rounded border" alt="{{ product['title'] }}">
+             class="img-fluid rounded border{% if product['stock'] == 0 %} product-image--dim{% endif %}"
+             alt="{{ product['title'] }}">
     </div>
     <div class="col-md-7">
         <h2>{{ product['title'] }}</h2>
         <p class="text-muted">{{ product['category'] }}</p>
         <p>{{ product['description'] }}</p>
         <h4 class="mb-3">{{ "%.2f"|format(product['price']) }} ₽</h4>
-        <p>Остаток: <strong>{{ product['stock'] }}</strong></p>
+        <p>Остаток: <strong class="{% if product['stock'] == 0 %}text-danger{% endif %}">{{ product['stock'] }}</strong></p>
 
-        {% if current_user.is_authenticated %}
+        {% if product['stock'] > 0 %}
             <form method="post" action="{{ url_for('main.add_to_cart', product_id=product['id']) }}" class="d-flex gap-2">
                 <input type="number" class="form-control w-auto" name="quantity" min="1" max="{{ product['stock'] }}" value="1">
-                <button class="btn btn-success" type="submit" {% if product['stock'] == 0 %}disabled{% endif %}>
-                    Добавить в корзину
-                </button>
+                <button class="btn btn-success" type="submit">Добавить в корзину</button>
             </form>
         {% else %}
-            <a class="btn btn-primary" href="{{ url_for('main.login') }}">Войдите для покупки</a>
+            <button type="button" class="btn btn-secondary" disabled>Нет в наличии</button>
         {% endif %}
     </div>
 </div>

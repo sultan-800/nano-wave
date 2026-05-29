@@ -1,7 +1,25 @@
 {% extends "base.html" %}
 {% block title %}Пользователи - Админка{% endblock %}
 {% block content %}
+{% include "partials/back_button.html" %}
 <h2 class="mb-3">Пользователи</h2>
+
+<form class="row g-2 mb-4" method="get">
+    <div class="col-md-8">
+        <input type="text" class="form-control" name="q" placeholder="Поиск по ID, имени, email, роли..."
+               value="{{ search_q }}">
+    </div>
+    <div class="col-md-2">
+        <select class="form-select" name="filter_role">
+            <option value="">Все роли</option>
+            <option value="user" {% if filter_role == 'user' %}selected{% endif %}>user</option>
+            <option value="admin" {% if filter_role == 'admin' %}selected{% endif %}>admin</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-primary w-100" type="submit">Найти</button>
+    </div>
+</form>
 
 <div class="table-responsive">
     <table class="table table-bordered">
@@ -21,6 +39,8 @@
                 <td>{{ user['email'] }}</td>
                 <td>{{ user['role'] }}</td>
             </tr>
+        {% else %}
+            <tr><td colspan="4" class="text-muted">Пользователи не найдены</td></tr>
         {% endfor %}
         </tbody>
     </table>
