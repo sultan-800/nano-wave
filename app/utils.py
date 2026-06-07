@@ -11,7 +11,6 @@ def allowed_image(filename):
 
 
 def save_product_image(file_storage, image_name):
-    """Save uploaded file using provided name (with extension from file if needed)."""
     if not file_storage or not file_storage.filename:
         return image_name.strip() if image_name else ""
 
@@ -39,7 +38,6 @@ def save_product_image(file_storage, image_name):
 
 
 def build_like_search(query, *columns):
-    """Return SQL fragment and params for OR search across columns."""
     if not query:
         return "", []
     clauses = []
